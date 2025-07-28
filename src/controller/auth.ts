@@ -104,3 +104,101 @@ export const verifyOtp = async (req: Request, res: Response) => {
   }
 }
 
+//forgot password
+export const forgotPassword = async (req: Request, res: Response) => {
+  const {email} = req.body;
+  if(!email){
+    return res.status(400).json({ success: false, message: 'Email is required.' });
+  }
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(200).json({ success: true, message: 'If that email is registered, a reset link has been sent. '});
+    }
+    const  token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+    user.resetPasswordToken=token;
+    user.resetPasswordTokenExpires=expires;
+    await user.save();
+    const resetLink = `http://localhost:3000/api/v1/auth/reset-password-form?token=${token}`;
+    await sendmail(
+      user.email,
+      'Password Reset Request',
+      `Click the link to reset your password: <a href='${resetLink}'>Reset Password</a><br/>If you did not request this, ignore this email.`
+    );
+    return res.status(200).json({ success: true, message: 'Password reset link sent to your registered email.' });
+    } catch (error) {
+    return res.status(500).json({success: false, message: 'Server error.', error})
+  }
+}
+
+export const serveResetPasswordForm = async (req: Request, res: Response) => {
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).send('Invalid or missing token.');
+  }
+  return res.send(`
+    <html>
+      <head><title>Reset Password</title></head>
+      <body>
+        <h2>Reset Your Password</h2>
+        <form method="POST" action="/api/v1/auth/reset-password">
+          <input type="hidden" name="token" value="${token}" />
+          <label>New Password:</label><br />
+          <input type="password" name="newPassword" required /><br />
+          <label>Confirm Password:</label><br />
+          <input type="password" name="confirmPassword" required /><br />
+          <button type="submit">Reset Password</button>
+        </form>
+      </body>
+    </html>
+  `);
+};
+
+// reset password
+export const resetPassword = async (req : Request, res: Response) => {
+  const { token, newPassword, confirmPassword } = req.body;
+  if (!token || !newPassword || !confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Token, new password, and confirm password are required.' });
+  }
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+  }
+  try {
+    const user = await UserModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordTokenExpires: { $gt: new Date() }
+    });
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired token.' });
+    }
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordTokenExpires = undefined;
+    await user.save();
+
+    try {
+      await sendmail(
+        user.email,
+        'Password Reset Successful',
+        'Your password has been reset successfully. If you did not perform this action, please contact support immediately.'
+      );
+    } catch (mailError) {
+    }
+
+    return res.status(200).json({ success: true, message: 'Password reset successfully.' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server error.', error });
+  }
+};
+
+export const sendResetPasswordEmail = async (user: any, req: Request) => {
+  const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password-form?token=${user.resetPasswordToken}`;
+  const message = `You requested a password reset. Click the link below to reset your password:\n\n<a href="${resetUrl}">${resetUrl}</a>\n\nIf you did not request this, please ignore this email.`;
+  await sendmail(
+    user.email,
+    'Password Reset Request',
+    message
+  );
+};
+
