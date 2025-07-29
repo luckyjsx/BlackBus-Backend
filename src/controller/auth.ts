@@ -9,9 +9,9 @@ import crypto from 'crypto';
 // register
 export const register = async (req: Request, res: Response) => {
   const { firstName, lastName, email, password } = req.body;
-  if (!firstName || !lastName || !email || !password) {
-    return res.status(400).json({ success: false, message: 'First name, last name, email, and password are required.' });
-  }
+  // if (!firstName || !lastName || !email || !password) {
+  //   return res.status(400).json({ success: false, message: 'First name, last name, email, and password are required.' });
+  // }
   try {
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -39,9 +39,9 @@ export const register = async (req: Request, res: Response) => {
 // login
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email and password are required.' });
-  }
+  // if (!email || !password) {
+  //   return res.status(400).json({ success: false, message: 'Email and password are required.' });
+  // }
   try {
     const user = await UserModel.findOne({ email });
     if (!user) {
@@ -75,9 +75,9 @@ export const login = async (req: Request, res: Response) => {
 // verify OTP
 export const verifyOtp = async (req: Request, res: Response) => {
   const { email, otp } =req.body;
-  if(!email || !otp){
-    return res.status(400).json({success: false, message: 'Email and Otp are required.'})
-  }
+  // if(!email || !otp){
+  //   return res.status(400).json({success: false, message: 'Email and Otp are required.'})
+  // }
   try {
     const user = await UserModel.findOne({email});
     if(!user){
@@ -107,9 +107,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
 //forgot password
 export const forgotPassword = async (req: Request, res: Response) => {
   const {email} = req.body;
-  if(!email){
-    return res.status(400).json({ success: false, message: 'Email is required.' });
-  }
+  // if(!email){
+  //   return res.status(400).json({ success: false, message: 'Email is required.' });
+  // }
   try {
     const user = await UserModel.findOne({ email });
     if (!user) {
@@ -158,9 +158,9 @@ export const serveResetPasswordForm = async (req: Request, res: Response) => {
 // reset password
 export const resetPassword = async (req : Request, res: Response) => {
   const { token, newPassword, confirmPassword } = req.body;
-  if (!token || !newPassword || !confirmPassword) {
-    return res.status(400).json({ success: false, message: 'Token, new password, and confirm password are required.' });
-  }
+  // if (!token || !newPassword || !confirmPassword) {
+  //   return res.status(400).json({ success: false, message: 'Token, new password, and confirm password are required.' });
+  // }
   if (newPassword !== confirmPassword) {
     return res.status(400).json({ success: false, message: 'Passwords do not match.' });
   }
