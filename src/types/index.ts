@@ -7,4 +7,5 @@ export interface User {
   otpExpires: Date | undefined;
   resetPasswordToken?: string;
   resetPasswordTokenExpires?: Date;
+  lastOtpSent?: Date | undefined;
 }

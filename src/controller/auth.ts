@@ -21,7 +21,8 @@ export const register = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 *1000);
-    const user = new UserModel({ firstName, lastName, email, password: hashedPassword, otp, otpExpires });
+    const lastOtpSent = new Date();
+    const user = new UserModel({ firstName, lastName, email, password: hashedPassword, otp, otpExpires, lastOtpSent });
     await user.save();
 
     await sendmail(
@@ -202,3 +203,49 @@ export const sendResetPasswordEmail = async (user: any, req: Request) => {
   );
 };
 
+//resend OTP
+export const resendOtp = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  try {
+    const user = await UserModel.findOne({email});
+    if (!user){
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    //check if user has a lastOtpSent
+    if(user.lastOtpSent){
+      const timeSinceLastOtp = Date.now() - user.lastOtpSent.getTime();
+      const thirtySeconds = 30 * 1000;
+
+      if(timeSinceLastOtp <  thirtySeconds){
+        const remainingTime = Math.ceil((thirtySeconds - timeSinceLastOtp) / 1000);
+        return res.status(429).json({ 
+          success: false, 
+          message: `Please wait ${remainingTime} seconds before requesting a new OTP.`,
+          remainingTime 
+        });
+      }
+    }
+
+    //new Otp generate
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    const lastOtpSent = new Date();
+
+    //update user with new otp
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    user.lastOtpSent = lastOtpSent;
+    await user.save();
+
+    //send new otp via email
+    await sendmail(
+      email,
+      'Your New OTP Code',
+      otp,
+    );
+    return res.status(200).json({ success: true, message: 'New OTP sent successfully.', nextResendTime: new Date(lastOtpSent.getTime() + 30 * 1000)});
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server error.', error });
+  }
+}

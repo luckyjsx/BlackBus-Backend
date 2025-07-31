@@ -27,5 +27,9 @@ export const resetPasswordSchema = z.object({
     confirmPassword: z.string().min(6, 'Confirm password is required'),
 });
 
+export const resendOtpSchema  = z.object({
+    email: z.email('Invalid email'),
+});
+
 
  
