@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import busRoutes from './routes/bus-routes';
 import busStopRoutes from './routes/bus-stops';
 import authRoutes from './routes/auth';
+import countryRoutes from './routes/country';
 
 config();
 connectToDatabase();
@@ -17,6 +18,7 @@ app.use(bodyParser.json());
 app.use('/api/v1/bus', busRoutes);
 app.use('/api/v1/bus-stop', busStopRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/countries', countryRoutes);
 
 app.get('/', (_req, res) => {
   res.send('Server is up and running!');
