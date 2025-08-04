@@ -67,7 +67,7 @@ export const createCountry = async (req: Request, res: Response) => {
 // get all countries
 export const getAllCountries = async (_req: Request, res: Response) => {
     try {
-        const countries = await CountryModel.findOne().sort({ name: 1});
+        const countries = await CountryModel.find()
         res.status(200).json({
             success: true,
             message: 'Countries retrieved successfully.',
