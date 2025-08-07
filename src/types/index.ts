@@ -8,4 +8,5 @@ export interface User {
   resetPasswordToken?: string;
   resetPasswordTokenExpires?: Date;
   lastOtpSent?: Date | undefined;
+  isVerified: Boolean;
 }

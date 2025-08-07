@@ -48,6 +48,9 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
+    if (!user.isVerified) {
+      return res.status(403).json({ success: false, message: 'Please verify your email with the OTP before logging in.' });
+    }
     const isMatch = await bcrypt.compare(password, user.password as string);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Password is Incorrect.' });
@@ -96,6 +99,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
     user.otp = undefined;
     user.otpExpires = undefined;
+    user.isVerified = true;
     await user.save();
 
     return res.status(200).json({success: true, message: 'OTP verified successfully.'});

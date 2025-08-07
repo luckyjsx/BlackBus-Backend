@@ -13,6 +13,10 @@ const UserSchema: Schema = new Schema<IUser>({
   resetPasswordToken: {type: String},
   resetPasswordTokenExpires: {type: Date},
   lastOtpSent: { type: Date },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 const UserModel = mongoose.model<IUser>('User', UserSchema);
