@@ -9,4 +9,5 @@ export interface User {
   resetPasswordTokenExpires?: Date;
   lastOtpSent?: Date | undefined;
   isVerified: Boolean;
+  isGoogleAccount:Boolean;
 }

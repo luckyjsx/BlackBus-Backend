@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken';
 import UserModel from '@src/model/auth/userModel';
 import { generateOTP } from '@src/library/otp';
 import { sendmail } from '@src/library/mail';
-import crypto from 'crypto'; 
+import crypto from 'crypto';
+import {OAuth2Client} from 'google-auth-library'
+
+
+const client = new OAuth2Client(process.env.GOOGLE_WEB_CLIENT_ID)
 
 // register
 export const register = async (req: Request, res: Response) => {
@@ -251,5 +255,46 @@ export const resendOtp = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, message: 'New OTP sent successfully.', nextResendTime: new Date(lastOtpSent.getTime() + 30 * 1000)});
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Server error.', error });
+  }
+}
+
+export const googleAuth = async (req:Request, res:Response) => {
+  try {
+    const {idToken} = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_WEB_CLIENT_ID
+    })
+
+    const payload = ticket.getPayload();
+    if(!payload){
+       return res.status(400).json({ success: false, message: 'Invalid token' });
+    }
+
+    const {email, given_name, family_name} = payload;
+
+    let user = await UserModel.findOne({email});
+    if(!user){
+      user = new UserModel({
+        firstName:given_name,
+        lastName:family_name,
+        email,
+        isVerified:true,
+        isGoogleAccount:true,
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign({userId:user._id, email:user.email}, process.env.JWT_SECRET!, {expiresIn:'24h'})
+
+    return res.status(200).json({
+      success:true,
+      token,
+      user
+    })
+
+  } catch (error) {
+    console.log(error)
+     return res.status(500).json({ success: false, message: 'Google login failed', error: error });
   }
 }

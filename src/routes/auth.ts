@@ -1,6 +1,6 @@
 import express from 'express';
-import { register, login, verifyOtp, resetPassword, forgotPassword, serveResetPasswordForm, resendOtp } from '../controller/auth';
-import { forgotPasswordSchema, loginSchema, registerSchema, resendOtpSchema, resetPasswordSchema, verifyOtpSchema } from '@src/schemas/auth.schema';
+import { register, login, verifyOtp, resetPassword, forgotPassword, serveResetPasswordForm, resendOtp, googleAuth } from '../controller/auth';
+import { forgotPasswordSchema, googleAuthSchema, loginSchema, registerSchema, resendOtpSchema, resetPasswordSchema, verifyOtpSchema } from '@src/schemas/auth.schema';
 import validateRequest from '@src/middleware/validateRequest';
 
 const router = express.Router();
@@ -12,5 +12,6 @@ router.post('/reset-password', validateRequest(resetPasswordSchema) , resetPassw
 router.post('/forgot-password', validateRequest(forgotPasswordSchema), forgotPassword);
 router.get('/reset-password-form', serveResetPasswordForm);
 router.post('/resend-otp', validateRequest(resendOtpSchema), resendOtp);
+router.post('/google',validateRequest(googleAuthSchema), googleAuth);
 
 export default router;       

@@ -31,5 +31,11 @@ export const resendOtpSchema  = z.object({
     email: z.email('Invalid email'),
 });
 
+export const googleAuthSchema = z.object({
+  idToken: z
+    .string()
+    .min(1, 'idToken is required'),
+});
+
 
  

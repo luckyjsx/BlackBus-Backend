@@ -10,7 +10,7 @@ import countryRoutes from './routes/country';
 config();
 connectToDatabase();
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
@@ -24,6 +24,6 @@ app.get('/', (_req, res) => {
   res.send('Server is up and running!');
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
 });

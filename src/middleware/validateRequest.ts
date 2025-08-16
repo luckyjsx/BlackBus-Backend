@@ -14,7 +14,7 @@ function validateRequest(schema: ZodSchema, target: RequestPart = 'body') {
           message: 'Validation failed',
           errors: result.error.format(),
         });
-        return; // <-- make sure to return here
+        return;
       }
 
       if (target === 'body') {
