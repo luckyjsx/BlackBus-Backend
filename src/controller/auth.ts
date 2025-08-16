@@ -44,41 +44,79 @@ export const register = async (req: Request, res: Response) => {
 // login
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  // if (!email || !password) {
-  //   return res.status(400).json({ success: false, message: 'Email and password are required.' });
-  // }
+
+  
   try {
     const user = await UserModel.findOne({ email });
+    console.log("laxman...",user)
+
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid credentials.' 
+      });
     }
+    
     if (!user.isVerified) {
-      return res.status(403).json({ success: false, message: 'Please verify your email with the OTP before logging in.' });
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Please verify your email with the OTP before logging in.' 
+      });
     }
+
+    // Check if this is a Google account without password
+    if (user.isGoogleAccount && !user.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'This account was created with Google. Please sign in with Google.',
+        requiresGoogleLogin: true
+      });
+    }
+
+    // Validate password is provided
+    if (!password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password is required.' 
+      });
+    }
+
+    // Compare password (now safe since we've checked password exists)
     const isMatch = await bcrypt.compare(password, user.password as string);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Password is Incorrect.' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Password is incorrect.' 
+      });
     }
+
     const payload = {
       userId: user._id, 
       email: user.email
-    }
+    };
+    
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
+    
     const options = {
       expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       httpOnly: true, 
     };
+
     user.password = undefined;
     return res.cookie('token', token, options).status(200).json({
       success: true,
       token,
       user,
       message: 'Logged in successfully.'
-    })
+    });
+
   } catch (error) {
+    console.log("laxman..",error)
+    console.log("Login error:", error);
     return res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 // verify OTP
 export const verifyOtp = async (req: Request, res: Response) => {
