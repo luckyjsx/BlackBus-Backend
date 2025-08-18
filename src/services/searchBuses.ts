@@ -18,8 +18,9 @@ export async function searchBuses({ from, to, date }: SearchParams) {
     from: { $regex: new RegExp(`^${from}$`, "i") },
     to: { $regex: new RegExp(`^${to}$`, "i") },
     date: { $gte: startOfDay, $lte: endOfDay },
+    seatsAvailable: { $gt: 0 },
   }).populate({
     path: 'routeId',
     populate: { path: 'stops' }
-  });;
+  }).sort({ departureTime: 1 });
 }

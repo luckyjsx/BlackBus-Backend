@@ -9,6 +9,11 @@ const BusSchema = new mongoose.Schema({
     ref: "BusRoute", // Relationship to route
     required: true,
   },
+  // busType: {
+  //   type: String,
+  //   enum: ['AC', 'Non-AC', 'Sleeper', 'Semi-Sleeper', 'Volvo'],
+  //   required: true
+  // },
 
   from: { type: String, required: true },
   to: { type: String, required: true },

@@ -1,10 +1,10 @@
 // routes/busStopRoutes.ts
-import express from 'express';
+import {Router} from 'express';
 import validateRequest from '@src/middleware/validateRequest';
-import { busStopSchema } from '@src/schemas/bus-stop.schema';
-import { createBusStop, getAllBusStops, getBusStopById } from '@src/controller/bus-stops';
+import { busStopSchema } from '@src/schemas/bus-routes/bus-stop.schema';
+import { createBusStop, getAllBusStops, getBusStopById } from '@src/controller/bus-routes/bus-stops';
 
-const router = express.Router();
+const router = Router();
 
 // POST /api/bus-stops
 router.post('/', validateRequest(busStopSchema),createBusStop);

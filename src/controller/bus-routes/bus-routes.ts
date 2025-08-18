@@ -1,8 +1,8 @@
 
 import BusRoute from '@src/model/bus-routes/bus-routes';
-import BusStop from '@src/model/bus-routes/stops';
+import BusStop from '@src/model/bus-routes/bus-stops';
 import { Request, Response } from 'express';
-import { busRouteSchema } from '@src/schemas/bus-routes.schema';
+import { busRouteSchema } from '@src/schemas/bus-routes/bus-routes.schema';
 
 const createBusRoute = async (req: Request, res: Response) => {
   try {

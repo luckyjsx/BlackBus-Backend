@@ -2,10 +2,11 @@ import express from 'express';
 import { config } from 'dotenv';
 import connectToDatabase from './config/databaseConnection';
 import bodyParser from 'body-parser';
-import busRoutes from './routes/bus-routes';
-import busStopRoutes from './routes/bus-stops';
+import busRoutes from './routes/bus-routes/bus-routes';
+import busStopRoutes from './routes/bus-routes/bus-stops';
 import authRoutes from './routes/auth';
 import countryRoutes from './routes/country';
+import cityRoutes from "./routes/bus-routes/city"
 
 config();
 connectToDatabase();
@@ -19,6 +20,7 @@ app.use('/api/v1/bus', busRoutes);
 app.use('/api/v1/bus-stop', busStopRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/countries', countryRoutes);
+app.use('/api/v1/city', cityRoutes);
 
 app.get('/', (_req, res) => {
   res.send('Server is up and running!');

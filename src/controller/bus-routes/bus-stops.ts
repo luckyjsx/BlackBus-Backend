@@ -1,5 +1,5 @@
 // controllers/busStopController.ts
-import BusStop from '@src/model/bus-routes/stops';
+import BusStop from '@src/model/bus-routes/bus-stops';
 import { Request, Response } from 'express';
 
 export const createBusStop = async (req: Request, res: Response) => {
